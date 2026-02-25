@@ -26,7 +26,7 @@ RUN make && ./make_single_applets.sh
 RUN adduser -D static
 
 # Download and install the unzip the Transmissionic WebUI package
-RUN wget -P /tmp/ https://github.com/6c65726f79/Transmissionic/releases/download/${TRANSMISSIONC_VERSION}/Transmissionic-webui-${TRANSMISSIONIC_VERSION}.zip \
+RUN wget -P /tmp/ https://github.com/6c65726f79/Transmissionic/releases/download/${TRANSMISSIONIC_VERSION}/Transmissionic-webui-${TRANSMISSIONIC_VERSION}.zip \
   && unzip /tmp/Transmissionic-webui-${TRANSMISSIONIC_VERSION}.zip
   
 # Switch to the scratch image
