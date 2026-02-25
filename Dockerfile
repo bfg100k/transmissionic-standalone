@@ -56,7 +56,7 @@ COPY httpd.conf .
 # COPY . .
 
 # Copy the transmissionic files
-COPY --from=builder /buysbox/web .
+COPY --from=builder /busybox/web .
 
 # Run busybox httpd
 CMD ["/busybox-httpd", "-f", "-v", "-p", "3000"]
