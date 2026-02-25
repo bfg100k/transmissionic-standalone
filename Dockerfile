@@ -4,6 +4,8 @@ FROM alpine:${ALPINE_VERSION} AS builder
 
 ARG BUSYBOX_VERSION=1.37.0
 
+ARG TRANSMISSIONIC_VERSION=v1.8.0
+
 # Install all dependencies required for compiling busybox
 RUN apk add gcc musl-dev make perl
 
@@ -23,6 +25,10 @@ RUN make && ./make_single_applets.sh
 # Create a non-root user to own the files and run our server
 RUN adduser -D static
 
+# Download and install the unzip the Transmissionic WebUI package
+RUN wget -P /tmp/ https://github.com/6c65726f79/Transmissionic/releases/download/${TRANSMISSIONC_VERSION}/Transmissionic-webui-${TRANSMISSIONIC_VERSION}.zip \
+  && unzip /tmp/Transmissionic-webui-${TRANSMISSIONIC_VERSION}.zip
+  
 # Switch to the scratch image
 FROM scratch
 
@@ -48,6 +54,9 @@ COPY httpd.conf .
 # Use the .dockerignore file to control what ends up inside the image!
 # NOTE: Commented out since this will also copy the .config file
 # COPY . .
+
+# Copy the transmissionic files
+COPY --from=builder /buysbox/web .
 
 # Run busybox httpd
 CMD ["/busybox-httpd", "-f", "-v", "-p", "3000"]
