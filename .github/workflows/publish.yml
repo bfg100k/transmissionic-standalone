@@ -26,15 +26,33 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Set TAG
-        run: echo TAG=${GITHUB_REF#refs/tags/} >> $GITHUB_ENV
-
-      - name: Publish ${{ matrix.svc }}
-        uses: docker/build-push-action@v3
+      - name: Docker Metadata
+        id: docker-meta
+        uses: docker/metadata-action@v5
         with:
-          file: Dockerfile
-          outputs: "type=registry,push=true"
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          images: bfg100k/transmissionic-standalone
           tags: |
-            bfg100k/transmissionic-standalone:${{ env.TAG }}
-            bfg100k/transmissionic-standalone:latest
+            # Tag branches with branch name, but disable for default branch
+            type=ref,event=branch,enable=${{ github.ref_name != 'master' }}
+            # set latest tag for default branch
+            type=raw,value=latest,enable=${{ github.ref_name == 'master' }}
+            type=raw,value={{date 'YYYYMMDD'}}_{{branch}}_{{sha}}
+
+      - name: Note build time
+        run: |
+          echo "BUILD_DATE=$(date)" >> ${GITHUB_ENV}
+          echo "SHA_TRIMMED=${GITHUB_SHA::7}" >> ${GITHUB_ENV}
+      
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v5
+        with:
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          push: ${{ github.repository_owner == 'bfg100k' }}
+          tags: ${{ steps.docker-meta.outputs.tags }}
+          build-args: |
+            BUILDINFO="${{ github.ref_name }} ${{ env.SHA_TRIMMED }} ${{ env.BUILD_DATE }}"
+          labels: ${{ steps.docker-meta.outputs.labels }}
+      
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
