@@ -28,7 +28,10 @@ RUN adduser -D static
 # Download and install the unzip the Transmissionic WebUI package
 RUN wget -P /tmp/ https://github.com/6c65726f79/Transmissionic/releases/download/${TRANSMISSIONIC_VERSION}/Transmissionic-webui-${TRANSMISSIONIC_VERSION}.zip \
   && unzip /tmp/Transmissionic-webui-${TRANSMISSIONIC_VERSION}.zip
-  
+
+# ios PWA fix
+RUN sed -i 's|<meta name="apple-mobile-web-app-status-bar-style" content="default">|<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">|g' ./web/index.html
+
 # Switch to the scratch image
 FROM scratch
 
