@@ -32,6 +32,9 @@ RUN wget -P /tmp/ https://github.com/6c65726f79/Transmissionic/releases/download
 # ios PWA fix
 RUN sed -i 's|<meta name="apple-mobile-web-app-status-bar-style" content="default">|<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">|g' ./web/index.html
 
+# pwa depreciation fix
+RUN sed -i 's|apple-mobile-web-app-capable|mobile-web-app-capable|g' ./web/index.html
+
 # Switch to the scratch image
 FROM scratch
 
